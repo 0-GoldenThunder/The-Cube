@@ -170,101 +170,7 @@ html, body {
   box-shadow: 0 0 16px rgba(255,255,255,0.08);
 }
 
-/* ==========================================================================
-   Neon Glow Overlay
-   Mixed over canvas using blend mode: screen
-   Colour palette: amber (#ff8c00) + deep orange (#ff4500)
-   ========================================================================== */
 
-.neon-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: 0;
-  transition: opacity 0.9s ease;
-  will-change: opacity;
-}
-
-.neon-overlay.active {
-  opacity: 1;
-}
-
-/* ── Hero glow: closed cube, LED strips on edges + top diamond ── */
-
-.neon-overlay.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    /* Top diamond LED glow */
-    radial-gradient(ellipse 36% 22% at 52% 28%, rgba(255,150, 30,0.18) 0%, transparent 70%),
-    /* Centre body glow */
-    radial-gradient(ellipse 42% 38% at 52% 47%, rgba(255,110,  0,0.16) 0%, transparent 65%),
-    /* Floor ambient bounce */
-    radial-gradient(ellipse 55% 14% at 52% 72%, rgba(180, 55,  0,0.07) 0%, transparent 75%);
-  animation: neon-hero-a 3.8s ease-in-out infinite;
-}
-
-.neon-overlay.hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    /* Edge strip flicker accent */
-    radial-gradient(ellipse 22% 28% at 36% 46%, rgba(255,120,  0,0.10) 0%, transparent 70%),
-    radial-gradient(ellipse 22% 28% at 68% 46%, rgba(255,120,  0,0.10) 0%, transparent 70%);
-  animation: neon-hero-b 3.8s ease-in-out infinite;
-  animation-delay: -1.9s;
-}
-
-@keyframes neon-hero-a {
-  0%,100% { opacity: 0.55; transform: scale(1);    }
-  50%      { opacity: 1;    transform: scale(1.08); }
-}
-
-@keyframes neon-hero-b {
-  0%,100% { opacity: 0.4; transform: scale(1);    }
-  50%      { opacity: 0.9; transform: scale(1.05); }
-}
-
-/* ── Detail glow: open cube, reactor core is centred and visible ── */
-
-.neon-overlay.detail::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    /* Bright core */
-    radial-gradient(circle 20% at 50% 51%, rgba(255,200, 50,0.22) 0%, transparent 50%),
-    /* Inner halo */
-    radial-gradient(circle 32% at 50% 51%, rgba(255,100,  0,0.20) 0%, rgba(255,50,0,0.05) 55%, transparent 70%);
-  animation: neon-core-a 2.6s ease-in-out infinite;
-}
-
-.neon-overlay.detail::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    /* Wide outer bloom */
-    radial-gradient(ellipse 55% 40% at 50% 51%, rgba(200, 70,0,0.08) 0%, transparent 75%),
-    /* Floor glow */
-    radial-gradient(ellipse 50% 12% at 50% 76%, rgba(160, 50,0,0.06) 0%, transparent 80%);
-  animation: neon-core-b 2.6s ease-in-out infinite;
-  animation-delay: -1.3s;
-}
-
-@keyframes neon-core-a {
-  0%,100% { opacity: 0.5; transform: scale(1);    }
-  50%      { opacity: 1;   transform: scale(1.13); }
-}
-
-@keyframes neon-core-b {
-  0%,100% { opacity: 0.6; transform: scale(1);    }
-  50%      { opacity: 1;   transform: scale(1.06); }
-}
 
 /* ==========================================================================
    Hero Layer
@@ -484,10 +390,10 @@ html, body {
 }
 
 /* ==========================================================================
-   Video Overlay
+   Image Overlay
    ========================================================================== */
 
-.video-overlay {
+.image-overlay {
   position: absolute;
   inset: 0;
   z-index: 3;
@@ -497,15 +403,21 @@ html, body {
   will-change: opacity;
 }
 
-.video-overlay.active {
+.image-overlay.active {
   opacity: 1;
 }
 
-.overlay-video {
+.overlay-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  animation: img-pulse 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes img-pulse {
+  0%   { opacity: 0.15; }
+  100% { opacity: 0.85; }
 }
 
 /* Entry keyframe (used by all hero children) */

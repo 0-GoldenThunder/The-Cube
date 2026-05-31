@@ -155,121 +155,59 @@ function tick() {
 }
 
 // ==========================================================================
-// Neon Overlay
+// Image Overlay
 // ==========================================================================
 
-const neonEl = document.getElementById('neon-overlay');
+const imageHeroEl   = document.getElementById('image-hero');
+const imageDetailEl = document.getElementById('image-detail');
 
-// ==========================================================================
-// Video Overlay — dual video, state-matched, canplay-gated smooth fade
-// ==========================================================================
+// CSS transition duration (must match .image-overlay transition in CSS)
+const IMAGE_FADE_MS = 1200;
 
-const videoHeroEl   = document.getElementById('video-hero');
-const videoDetailEl = document.getElementById('video-detail');
-const vidHero       = document.getElementById('vid-hero');
-const vidDetail     = document.getElementById('vid-detail');
-
-// CSS transition duration (must match .video-overlay transition in CSS)
-const VIDEO_FADE_MS = 1200;
-
-/**
- * Fade out a video overlay wrapper smoothly, then pause the video.
- * @param {HTMLElement} wrapperEl
- */
-function fadeOutVideo(wrapperEl) {
+function fadeOutImage(wrapperEl) {
   if (!wrapperEl) return;
   wrapperEl.classList.remove('active');
-  // Pause playback after the CSS fade completes — no jarring cut
-  const vid = wrapperEl.querySelector('video');
-  if (vid) setTimeout(() => vid.pause(), VIDEO_FADE_MS);
+}
+
+function fadeInImage(wrapperEl) {
+  if (!wrapperEl) return;
+  wrapperEl.classList.add('active');
 }
 
 /**
- * Start playing a video and fade its wrapper in only once
- * the browser confirms it has enough data to play smoothly.
- * @param {HTMLElement} wrapperEl
- * @param {HTMLVideoElement} vid
+ * Main image state switch
+ * @param {'hero'|'detail'|null} imageState
  */
-function fadeInVideo(wrapperEl, vid) {
-  if (!wrapperEl || !vid) return;
-
-  const doFade = () => {
-    wrapperEl.classList.add('active');
-  };
-
-  // If already ready (e.g. pre-rolled), fade in immediately
-  if (vid.readyState >= 3) {  // HAVE_FUTURE_DATA or better
-    vid.play().catch(() => {});
-    doFade();
+function setImageOverlay(imageState) {
+  if (imageState === 'hero') {
+    fadeOutImage(imageDetailEl);
+    fadeInImage(imageHeroEl);
+  } else if (imageState === 'detail') {
+    fadeOutImage(imageHeroEl);
+    fadeInImage(imageDetailEl);
   } else {
-    // Wait for enough data, then fade in
-    vid.addEventListener('canplay', function onReady() {
-      vid.removeEventListener('canplay', onReady);
-      vid.play().catch(() => {});
-      doFade();
-    });
-    vid.load(); // trigger load if not already started
+    fadeOutImage(imageHeroEl);
+    fadeOutImage(imageDetailEl);
   }
 }
 
 /**
- * Pre-roll both videos silently so they're ready when needed.
- * Plays then immediately pauses — browsers buffer ahead after this.
- */
-function prerollVideos() {
-  [vidHero, vidDetail].forEach(vid => {
-    if (!vid) return;
-    vid.addEventListener('canplay', function onReady() {
-      vid.removeEventListener('canplay', onReady);
-      // Buffer is ready — pause until we actually need it
-      vid.pause();
-    }, { once: true });
-    vid.load();
-  });
-}
-
-/**
- * Main video state switch — call with 'hero', 'detail', or null to hide all.
- * @param {'hero'|'detail'|null} videoState
- */
-function setVideo(videoState) {
-  if (videoState === 'hero') {
-    fadeOutVideo(videoDetailEl);
-    fadeInVideo(videoHeroEl, vidHero);
-  } else if (videoState === 'detail') {
-    fadeOutVideo(videoHeroEl);
-    fadeInVideo(videoDetailEl, vidDetail);
-  } else {
-    fadeOutVideo(videoHeroEl);
-    fadeOutVideo(videoDetailEl);
-  }
-}
-
-/**
- * Fade out a video wrapper and call back ONLY once the CSS opacity
- * transition has fully completed — guaranteed via transitionend.
- * Falls back to a timeout if transitionend never fires.
- * @param {HTMLElement} wrapperEl  — the .video-overlay wrapper
- * @param {Function}   callback   — called once opacity reaches 0
+ * Fade out an image wrapper and call back ONLY once the CSS opacity
+ * transition has fully completed.
  */
 function fadeOutThen(wrapperEl, callback) {
   if (!wrapperEl) { callback?.(); return; }
-
-  // Already hidden — no need to wait
   if (!wrapperEl.classList.contains('active')) { callback?.(); return; }
 
   let settled = false;
   const done = () => {
-    if (settled) return;   // guard against double-fire
+    if (settled) return;
     settled = true;
-    wrapperEl.querySelector('video')?.pause();
     callback?.();
   };
 
-  // Start CSS fade
   wrapperEl.classList.remove('active');
 
-  // Fire once the opacity transition ends
   wrapperEl.addEventListener('transitionend', function handler(e) {
     if (e.propertyName === 'opacity' && e.target === wrapperEl) {
       wrapperEl.removeEventListener('transitionend', handler);
@@ -277,21 +215,7 @@ function fadeOutThen(wrapperEl, callback) {
     }
   });
 
-  // Hard fallback — in case transitionend is suppressed (visibility hidden, etc.)
-  setTimeout(done, VIDEO_FADE_MS + 100);
-}
-
-/**
- * @param {'hero'|'detail'|null} mode  — null = fade out entirely
- */
-function setNeon(mode) {
-  if (!neonEl) return;
-  neonEl.classList.remove('hero', 'detail', 'active');
-  if (mode) {
-    // Force reflow so CSS transition re-fires when re-adding 'active'
-    void neonEl.offsetWidth;
-    neonEl.classList.add(mode, 'active');
-  }
+  setTimeout(done, IMAGE_FADE_MS + 100);
 }
 
 // ==========================================================================
@@ -358,17 +282,12 @@ function goToDetail() {
   state = 'transitioning';
   log('hero → detail');
 
-  // 1. Fade hero UI and neon out in parallel (cosmetic — doesn't block)
+  // 1. Fade hero UI
   gsap.to('#hero-layer', { opacity: 0, duration: 0.5, ease: 'power2.in' });
-  gsap.to(neonEl, {
-    opacity: 0, duration: 0.4, ease: 'power2.in',
-    onComplete: () => neonEl.classList.remove('hero', 'detail', 'active')
-  });
 
-  // 2. Fade out hero video — WAIT for it to fully reach opacity 0
-  //    before moving a single frame
-  fadeOutThen(videoHeroEl, () => {
-    log('Hero video faded — starting frame animation.');
+  // 2. Fade out hero overlay — WAIT for it to fully reach opacity 0
+  fadeOutThen(imageHeroEl, () => {
+    log('Hero overlay faded — starting frame animation.');
 
     // 3. NOW animate frames 0 → 239
     gsap.to(seq, {
@@ -378,8 +297,7 @@ function goToDetail() {
       onComplete: () => {
         state = 'detail';
         log('Reached detail state.');
-        setNeon('detail');
-        setVideo('detail');
+        setImageOverlay('detail');
         showLabels();
       }
     });
@@ -391,17 +309,12 @@ function goToHero() {
   state = 'transitioning';
   log('detail → hero');
 
-  // 1. Hide labels and neon in parallel (cosmetic — doesn't block)
+  // 1. Hide labels
   hideLabels();
-  gsap.to(neonEl, {
-    opacity: 0, duration: 0.4, ease: 'power2.in',
-    onComplete: () => neonEl.classList.remove('hero', 'detail', 'active')
-  });
 
-  // 2. Fade out detail video — WAIT for it to fully reach opacity 0
-  //    before moving a single frame back
-  fadeOutThen(videoDetailEl, () => {
-    log('Detail video faded — starting frame reverse.');
+  // 2. Fade out detail overlay — WAIT for it to fully reach opacity 0
+  fadeOutThen(imageDetailEl, () => {
+    log('Detail overlay faded — starting frame reverse.');
 
     // 3. NOW animate frames 239 → 0
     gsap.to(seq, {
@@ -412,8 +325,7 @@ function goToHero() {
         state = 'hero';
         log('Returned to hero state.');
         gsap.to('#hero-layer', { opacity: 1, duration: 0.6, ease: 'power2.out' });
-        setNeon('hero');
-        setVideo('hero');
+        setImageOverlay('hero');
       }
     });
   });
@@ -484,9 +396,6 @@ preload()
     resizeCanvas();              // sizes canvas + draws frame 0 immediately
     requestAnimationFrame(tick); // start RAF loop while loader still visible
 
-    // Pre-roll both videos silently so they're buffered and ready
-    prerollVideos();
-
     // Short settle — gives browser one paint cycle to render frame 0
     // before we start fading the loader out over it
     setTimeout(() => {
@@ -500,11 +409,8 @@ preload()
           // Reveal navbar
           document.getElementById('navbar')?.classList.add('visible');
 
-          // Engage neon in hero state
-          setTimeout(() => setNeon('hero'), 300);
-
-          // Fade in hero video overlay
-          setTimeout(() => setVideo('hero'), 500);
+          // Fade in hero image overlay
+          setTimeout(() => setImageOverlay('hero'), 500);
 
           // Attach all input listeners
           initInputs();
