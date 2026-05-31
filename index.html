@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Cube | Precision Engineered. Infinitely Explored.</title>
+  <meta name="description" content="Experience The Cube — a precision-engineered marvel brought to life through cinematic 3D animation and immersive interaction.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+
+  <!-- ── Preloader ──────────────────────────────────────────────────────── -->
+  <div id="loader" class="loader-overlay" aria-live="polite">
+    <div class="loader-content">
+      <h2 class="loader-title">THE CUBE</h2>
+      <div class="progress-container">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      <p id="loader-status" class="loader-status">Initialising (0%)</p>
+    </div>
+  </div>
+
+  <!-- ── Navbar ─────────────────────────────────────────────────────────── -->
+  <nav id="navbar" class="navbar" aria-label="Main navigation">
+    <a href="#" class="nav-logo" aria-label="The Cube home" id="nav-home">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true" class="nav-cube-icon">
+        <!-- Cube top face -->
+        <polygon points="14,2 26,8 26,20 14,26 2,20 2,8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.35"/>
+        <!-- Top face -->
+        <polygon points="14,2 26,8 14,14 2,8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <!-- Left face -->
+        <polygon points="2,8 14,14 14,26 2,20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <!-- Right face -->
+        <polygon points="26,8 14,14 14,26 26,20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <!-- Center dot -->
+        <circle cx="14" cy="14" r="1.5" fill="currentColor" opacity="0.7"/>
+      </svg>
+    </a>
+    <div class="nav-links">
+      <a href="#" class="nav-link" id="nav-about">About</a>
+      <a href="#" class="nav-link" id="nav-explore">Explore</a>
+      <a href="#" class="nav-link" id="nav-contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- ── Main Scene ─────────────────────────────────────────────────────── -->
+  <main id="scroll-container" aria-label="Interactive cube experience">
+
+    <!-- Canvas — image sequence renderer -->
+    <div class="canvas-wrapper">
+      <canvas id="parallax-canvas" aria-hidden="true"></canvas>
+    </div>
+
+    <!-- Neon Glow Overlay — mix-blend-mode: screen, CSS animated -->
+    <div id="neon-overlay" class="neon-overlay" aria-hidden="true"></div>
+
+    <!-- Video overlay: Hero state (Frame 0) — pulsing neon light -->
+    <div id="video-hero" class="video-overlay" aria-hidden="true">
+      <video id="vid-hero" class="overlay-video" loop muted playsinline preload="auto">
+        <source src="/assets/Pulsing_neon_light_effect_202605311545.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- Video overlay: Detail state (Frame 239) — sci-fi cube pulse -->
+    <div id="video-detail" class="video-overlay" aria-hidden="true">
+      <video id="vid-detail" class="overlay-video" loop muted playsinline preload="auto">
+        <source src="/assets/Sci-fi_cube_pulsing_orange_lights_202605311549.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- ── Hero Layer (state: hero) ───────────────────────────────────── -->
+    <div id="hero-layer" class="hero-layer">
+      <div class="hero-content">
+        <p class="hero-eyebrow">Precision Engineered</p>
+        <div class="hero-divider" aria-hidden="true"></div>
+        <h1 class="hero-title">CUBE</h1>
+        <p class="hero-tagline">
+          An object of infinite complexity.<br>One scroll to reveal it all.
+        </p>
+        <div class="cta-wrapper">
+          <button id="start-btn" class="cta-button" aria-label="Start exploring the cube">
+            <span class="cta-text">Explore</span>
+            <svg class="cta-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8H13M8 3L13 8L8 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Scroll hint -->
+      <div class="scroll-hint" aria-hidden="true">
+        <div class="scroll-hint-track">
+          <div class="scroll-hint-dot"></div>
+        </div>
+        <span class="scroll-hint-text">Scroll to explore</span>
+      </div>
+    </div>
+
+    <!-- ── Detail Labels Overlay (state: detail) ──────────────────────── -->
+    <div class="scroll-content-overlay" aria-label="Cube component annotations">
+
+      <!-- Label 1 — Upper Face (top-left) -->
+      <div class="part-label" id="section-1" aria-label="Upper face annotation">
+        <!--
+          Angular polyline: dot at top-left of SVG → diagonal down-right →
+          sharp elbow → horizontal shelf to the right edge where text begins
+        -->
+        <svg class="label-line" viewBox="0 0 180 90" preserveAspectRatio="none">
+          <polyline
+            points="180,84 88,84 14,12"
+            stroke="white" stroke-width="1" stroke-opacity="0.55"
+            fill="none" stroke-linejoin="miter"
+          />
+          <circle cx="14" cy="12" r="2.5" fill="white" fill-opacity="0.8"/>
+        </svg>
+        <div class="label-text">
+          <span class="label-name">Upper Face</span>
+          <span class="label-desc">Precision-machined surface</span>
+        </div>
+      </div>
+
+      <!-- Label 2 — Lateral Edge (top-right) -->
+      <div class="part-label part-label--right" id="section-2" aria-label="Edge annotation">
+        <div class="label-text label-text--right">
+          <span class="label-name">Lateral Edge</span>
+          <span class="label-desc">Chamfered 45° bevel</span>
+        </div>
+        <!--
+          Mirror of label 1: dot at top-right → diagonal down-left →
+          sharp elbow → horizontal shelf to the left edge where text ends
+        -->
+        <svg class="label-line" viewBox="0 0 180 90" preserveAspectRatio="none">
+          <polyline
+            points="0,84 92,84 166,12"
+            stroke="white" stroke-width="1" stroke-opacity="0.55"
+            fill="none" stroke-linejoin="miter"
+          />
+          <circle cx="166" cy="12" r="2.5" fill="white" fill-opacity="0.8"/>
+        </svg>
+      </div>
+
+      <!-- Label 3 — Core Geometry (bottom-center) -->
+      <div class="part-label part-label--bottom" id="section-3" aria-label="Core annotation">
+        <!--
+          Vertical drop → sharp elbow → short diagonal run up to dot
+          SVG appears above the text (order: -1 via CSS)
+        -->
+        <svg class="label-line label-line--vert" viewBox="0 0 60 130" preserveAspectRatio="none">
+          <polyline
+            points="12,126 12,52 46,12"
+            stroke="white" stroke-width="1" stroke-opacity="0.55"
+            fill="none" stroke-linejoin="miter"
+          />
+          <circle cx="46" cy="12" r="2.5" fill="white" fill-opacity="0.8"/>
+        </svg>
+        <div class="label-text label-text--center">
+          <span class="label-name">Core Geometry</span>
+          <span class="label-desc">Volumetric center mass</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Back hint — appears in detail state -->
+    <div id="back-hint" class="back-hint" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 11L7 3M3 7L7 3L11 7" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Scroll up to return</span>
+    </div>
+
+  </main>
+
+  <!-- ── Debug Console (hidden by default — press D to toggle) ──────────── -->
+  <div id="debug-console" class="debug-console debug-hidden">
+    <div class="debug-header">
+      <span>🖥 DEBUG</span>
+      <span id="debug-frame-counter">Frame: 0 / 240</span>
+    </div>
+    <div id="debug-state" class="debug-state">State: hero</div>
+    <div id="debug-log-list" class="debug-log-list"></div>
+  </div>
+
+  <!-- ── Animation Engine ───────────────────────────────────────────────── -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
