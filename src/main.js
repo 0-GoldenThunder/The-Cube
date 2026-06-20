@@ -99,7 +99,7 @@ function preload() {
         if (statusEl) statusEl.textContent = `Loading… ${pct}%`;
         resolve();
       };
-      img.src = `/assets/frames/frame_${idx}.jpg`;
+      img.src = `${import.meta.env.BASE_URL}assets/frames/frame_${idx}.png`;
     });
   });
 
